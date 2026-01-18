@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://clubhouseimmo.com' // Remplacez par votre domaine réel
+  const baseUrl = 'https://www.clubhouseimmobilier.com'
 
   return {
     rules: {
