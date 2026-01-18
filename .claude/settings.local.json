@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm init:*)",
+      "Bash(npm install:*)",
+      "Bash(npx tailwindcss:*)",
+      "Bash(pkill:*)",
+      "Bash(ls:*)",
+      "Bash(npm run build:*)",
+      "Bash(cat:*)",
+      "Bash(node -e:*)",
+      "Bash(node analyze-dvf.js:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(node test-estimation.js:*)",
+      "Bash(node test-new-estimates.js:*)",
+      "Bash(node test-dvf-fix.js:*)",
+      "Bash(node debug-dvf.js:*)",
+      "Bash(npm run dev:*)",
+      "Bash(timeout /t 10)",
+      "Bash(ping:*)",
+      "Bash(tee:*)",
+      "Bash(tasklist:*)",
+      "Bash(git checkout:*)",
+      "Bash(npx next lint:*)",
+      "Bash(grep:*)",
+      "Bash(timeout /t 30 /nobreak)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"npm run build 2>&1 | Out-File -FilePath output.txt -Encoding utf8\")",
+      "Bash(cmd /c \"npm run build > output.txt 2>&1 && type output.txt\")",
+      "Bash(node_modules/.bin/next build:*)",
+      "Bash(node test-build.js:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
