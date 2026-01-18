@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next'
-import { getVilles } from '@/lib/data'
+import { getAllVilles } from '@/lib/data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://clubhouseimmo.com' // Remplacez par votre domaine réel
-  const villes = getVilles()
+  const villes = getAllVilles()
 
   // Pages statiques
   const staticPages: MetadataRoute.Sitemap = [
