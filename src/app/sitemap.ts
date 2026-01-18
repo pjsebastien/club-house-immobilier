@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next'
-import { getAllVilles } from '@/lib/data'
+import { getAllVilles, villeToSlug } from '@/lib/data'
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.clubhouseimmobilier.com'
@@ -65,7 +65,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Pages des villes (toutes les 134 villes)
   const villePages: MetadataRoute.Sitemap = villes.map((ville) => ({
-    url: `${baseUrl}/villes/${ville.slug}`,
+    url: `${baseUrl}/villes/${villeToSlug(ville.nom)}`,
     lastModified: new Date(),
     changeFrequency: 'monthly',
     priority: 0.8,
