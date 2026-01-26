@@ -368,3 +368,183 @@ export function getQuartierScore(
   const result = allScores.find(r => r.quartier.iris_id === quartier.iris_id)
   return result ? result.score : calculateQuartierScore(quartier, allQuartiersVille)
 }
+
+/**
+ * Interface pour les raisons factuelles d'éviter un quartier
+ */
+export interface RaisonEviter {
+  type: 'vacance' | 'population' | 'transactions' | 'score' | 'residences'
+  label: string
+  valeur: string
+  description: string
+}
+
+/**
+ * Interface pour un quartier à éviter avec ses raisons
+ */
+export interface QuartierAEviter {
+  quartier: Quartier
+  score: ScoreQuartierDetail
+  raisons: RaisonEviter[]
+  nbCriteres: number
+}
+
+/**
+ * Génère les raisons factuelles pour lesquelles un quartier présente
+ * des indicateurs moins favorables pour l'investissement
+ */
+function generateRaisonsEviter(quartier: Quartier, score: ScoreQuartierDetail): RaisonEviter[] {
+  const raisons: RaisonEviter[] = []
+  const stats = quartier.stats_insee
+
+  // Taux de vacance élevé
+  if (stats.taux_vacance_pct > 12) {
+    raisons.push({
+      type: 'vacance',
+      label: 'Taux de vacance élevé',
+      valeur: `${stats.taux_vacance_pct.toFixed(1)}%`,
+      description: 'Un taux supérieur à 12% peut indiquer une offre excédentaire par rapport à la demande locative.'
+    })
+  } else if (stats.taux_vacance_pct > 10) {
+    raisons.push({
+      type: 'vacance',
+      label: 'Taux de vacance supérieur à la moyenne',
+      valeur: `${stats.taux_vacance_pct.toFixed(1)}%`,
+      description: 'Un taux entre 10% et 12% suggère un déséquilibre potentiel entre offre et demande.'
+    })
+  }
+
+  // Population faible
+  if (stats.population && stats.population < 500) {
+    raisons.push({
+      type: 'population',
+      label: 'Population limitée',
+      valeur: `${stats.population} habitants`,
+      description: 'Une population réduite peut signifier moins de commerces, services et transports à proximité.'
+    })
+  }
+
+  // Faible volume de transactions
+  const nbVentes = (quartier.dvf_appartements?.nb_ventes || 0) + (quartier.dvf_maisons?.nb_ventes || 0)
+  if (nbVentes < 5) {
+    raisons.push({
+      type: 'transactions',
+      label: 'Faible volume de transactions',
+      valeur: `${nbVentes} vente${nbVentes > 1 ? 's' : ''} sur la période`,
+      description: 'Un faible nombre de transactions peut rendre la revente plus difficile et les prix moins prévisibles.'
+    })
+  }
+
+  // Score global bas
+  if (score.score_total < 50) {
+    raisons.push({
+      type: 'score',
+      label: 'Score d\'investissement bas',
+      valeur: `${score.score_total}/100`,
+      description: 'Le score composite intègre plusieurs indicateurs : accessibilité, potentiel locatif, démographie et liquidité.'
+    })
+  }
+
+  // Faible part de résidences principales
+  const totalLogements = stats.logements?.total || 0
+  const resPrincipales = stats.logements?.residences_principales || 0
+  const pctResPrincipales = totalLogements > 0 ? (resPrincipales / totalLogements) * 100 : 100
+
+  if (pctResPrincipales < 65 && totalLogements > 100) {
+    raisons.push({
+      type: 'residences',
+      label: 'Faible part de résidences principales',
+      valeur: `${pctResPrincipales.toFixed(1)}%`,
+      description: 'Une proportion élevée de résidences secondaires ou vacantes peut indiquer un quartier moins dynamique.'
+    })
+  }
+
+  return raisons
+}
+
+/**
+ * Identifie les quartiers présentant des indicateurs moins favorables
+ * pour l'investissement immobilier, basé sur des critères factuels.
+ *
+ * Critères utilisés (au moins 2 doivent être remplis) :
+ * - Taux de vacance > 10%
+ * - Score d'investissement < 55/100
+ * - Population < 500 habitants
+ * - Moins de 5 transactions DVF
+ *
+ * Retourne au minimum 5 quartiers (complète avec les pires scores si nécessaire)
+ */
+export function getQuartiersAEviter(
+  quartiers: Quartier[],
+  limit: number = 50
+): QuartierAEviter[] {
+  const MIN_QUARTIERS = 5
+  const allScores = calculateAllQuartiersScores(quartiers)
+
+  // Filtrer les quartiers avec au moins une population valide
+  const quartiersValides = allScores.filter(
+    ({ quartier }) => quartier.stats_insee.population && quartier.stats_insee.population > 0
+  )
+
+  // Calculer les données pour tous les quartiers
+  const allQuartiersWithData = quartiersValides.map(({ quartier, score }) => {
+    const stats = quartier.stats_insee
+    const nbVentes = (quartier.dvf_appartements?.nb_ventes || 0) + (quartier.dvf_maisons?.nb_ventes || 0)
+
+    // Compter le nombre de critères remplis
+    const criteres = [
+      stats.taux_vacance_pct > 10,           // Vacance élevée
+      score.score_total < 55,                 // Score bas
+      (stats.population || 0) < 500,          // Population faible
+      nbVentes < 5,                           // Peu de transactions
+    ]
+
+    const nbCriteres = criteres.filter(Boolean).length
+
+    return {
+      quartier,
+      score,
+      raisons: generateRaisonsEviter(quartier, score),
+      nbCriteres
+    }
+  })
+
+  // Séparer les quartiers qui remplissent les critères (>=2) et les autres
+  const quartiersAvecCriteres = allQuartiersWithData
+    .filter(item => item.nbCriteres >= 2)
+    .sort((a, b) => {
+      // Trier par nombre de critères (desc), puis par score (asc)
+      if (b.nbCriteres !== a.nbCriteres) {
+        return b.nbCriteres - a.nbCriteres
+      }
+      return a.score.score_total - b.score.score_total
+    })
+
+  // Si on a assez de quartiers avec critères, on les retourne
+  if (quartiersAvecCriteres.length >= MIN_QUARTIERS) {
+    return quartiersAvecCriteres.slice(0, limit)
+  }
+
+  // Sinon, compléter avec les quartiers ayant les pires scores
+  const idsDejaInclus = new Set(quartiersAvecCriteres.map(q => q.quartier.iris_id))
+
+  const quartiersComplementaires = allQuartiersWithData
+    .filter(item => !idsDejaInclus.has(item.quartier.iris_id))
+    .sort((a, b) => a.score.score_total - b.score.score_total) // Pires scores en premier
+
+  // Ajouter des raisons pour les quartiers complémentaires (basées sur le score)
+  const nbManquants = MIN_QUARTIERS - quartiersAvecCriteres.length
+  const complementAvecRaisons = quartiersComplementaires
+    .slice(0, nbManquants)
+    .map(item => ({
+      ...item,
+      raisons: item.raisons.length > 0 ? item.raisons : [{
+        type: 'score' as const,
+        label: 'Score parmi les plus bas de la ville',
+        valeur: `${item.score.score_total}/100`,
+        description: 'Ce quartier fait partie des moins bien notés selon notre méthodologie de scoring.'
+      }]
+    }))
+
+  return [...quartiersAvecCriteres, ...complementAvecRaisons].slice(0, limit)
+}

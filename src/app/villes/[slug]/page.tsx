@@ -1,6 +1,7 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getVilleBySlug, getAllVilleSlugs } from '@/lib/data'
+import Link from 'next/link'
+import { getVilleBySlug, getAllVilleSlugs, villeToSlug } from '@/lib/data'
 import VilleHeader from '@/components/ville/VilleHeader'
 import VilleNavigation from '@/components/ville/VilleNavigation'
 import VilleGuide from '@/components/ville/VilleGuide'
@@ -123,6 +124,35 @@ export default function VillePage({ params }: VillePageProps) {
 
       {/* Meilleurs quartiers pour investir */}
       <VilleMeilleursQuartiers ville={ville} />
+
+      {/* Lien vers quartiers à éviter */}
+      <section className="py-8 bg-neutral-50 border-y border-neutral-200">
+        <div className="max-w-5xl mx-auto px-6">
+          <Link
+            href={`/villes/${villeToSlug(ville.nom)}/quartiers-a-eviter`}
+            className="flex items-center justify-between bg-white border-2 border-neutral-200 rounded-xl p-6 hover:border-orange-300 hover:shadow-md transition-all group"
+          >
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center text-2xl">
+                ⚠️
+              </div>
+              <div>
+                <h3 className="font-semibold text-neutral-900 group-hover:text-orange-700 transition-colors">
+                  Quartiers à surveiller à {ville.nom}
+                </h3>
+                <p className="text-sm text-neutral-600">
+                  Analyse factuelle des quartiers présentant des indicateurs moins favorables
+                </p>
+              </div>
+            </div>
+            <div className="text-neutral-400 group-hover:text-orange-600 transition-colors">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </div>
+          </Link>
+        </div>
+      </section>
 
       {/* Section quartiers avec recherche et pagination */}
       <VilleQuartiersEnhanced ville={ville} />
