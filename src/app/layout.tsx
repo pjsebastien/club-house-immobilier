@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import CookieBanner from '@/components/layout/CookieBanner'
 
 const inter = Inter({
   subsets: ['latin'],
@@ -21,8 +22,8 @@ export const metadata: Metadata = {
   creator: 'Club House Immobilier',
   publisher: 'Club House Immobilier',
   icons: {
-    icon: '/favicon.svg',
-    apple: '/apple-touch-icon.png',
+    icon: '/favicon.png',
+    apple: '/favicon.png',
   },
   robots: {
     index: true,
@@ -55,6 +56,7 @@ export default function RootLayout({
           {children}
         </main>
         <Footer />
+        <CookieBanner />
       </body>
     </html>
   )

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import Container from '@/components/ui/Container'
 
 /**
@@ -38,10 +39,14 @@ export default function Header() {
       <Container>
         <nav className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-2 group">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center transition-transform group-hover:scale-105">
-              <span className="text-white font-bold text-xl">CH</span>
-            </div>
+          <Link href="/" className="flex items-center space-x-3 group">
+            <Image
+              src="/images/logo.png"
+              alt="Club House Immobilier"
+              width={40}
+              height={40}
+              className="transition-transform group-hover:scale-105"
+            />
             <span className="font-semibold text-lg text-neutral-900 hidden sm:block">
               Club House Immobilier
             </span>
