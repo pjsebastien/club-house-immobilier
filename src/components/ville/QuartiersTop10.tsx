@@ -6,13 +6,14 @@ import Card from '@/components/ui/Card'
 interface QuartiersTop10Props {
   quartiers: Quartier[]
   villeNom: string
+  villeScore: number
 }
 
 /**
  * QuartiersTop10 - Affiche le top 10 des quartiers d'une ville par score d'investissement
  */
-export default function QuartiersTop10({ quartiers, villeNom }: QuartiersTop10Props) {
-  const top10 = getTopQuartiers(quartiers, 10)
+export default function QuartiersTop10({ quartiers, villeNom, villeScore }: QuartiersTop10Props) {
+  const top10 = getTopQuartiers(quartiers, 10, villeScore)
 
   const getScoreBadgeColor = (score: number): string => {
     if (score >= 75) return 'bg-green-100 text-green-800 border-green-300'
@@ -35,7 +36,7 @@ export default function QuartiersTop10({ quartiers, villeNom }: QuartiersTop10Pr
           Top 10 des quartiers à {villeNom}
         </h3>
         <p className="text-sm text-neutral-600">
-          Classement basé sur le score d'investissement calculé à partir des données INSEE et DVF
+          Classement basé sur le score d'investissement calculé à partir des données INSEE
         </p>
       </div>
 

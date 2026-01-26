@@ -5,6 +5,7 @@ import Container from '@/components/ui/Container'
 import { Metadata } from 'next'
 import { getAllVilles, villeToSlug } from '@/lib/data'
 import { getQuartiersAEviter } from '@/lib/scoring-quartiers'
+import { calculateInvestmentScore } from '@/lib/scoring'
 
 export const metadata: Metadata = {
   title: 'Explorer les quartiers - Analyse par ville',
@@ -56,7 +57,7 @@ export default function QuartiersPage() {
             </h2>
             <p className="text-neutral-600 max-w-3xl">
               Pour chaque ville, découvrez les quartiers présentant des indicateurs moins favorables
-              pour l'investissement immobilier. Analyse basée sur les données officielles INSEE et DVF.
+              pour l'investissement immobilier. Analyse basée sur les données officielles INSEE.
             </p>
           </div>
 
@@ -71,7 +72,8 @@ export default function QuartiersPage() {
                   {villesParRegion[region]
                     .sort((a, b) => a.nom.localeCompare(b.nom))
                     .map((ville) => {
-                      const nbQuartiersAEviter = getQuartiersAEviter(ville.quartiers, 50).length
+                      const villeScore = calculateInvestmentScore(ville, villes)
+                      const nbQuartiersAEviter = getQuartiersAEviter(ville.quartiers, 50, villeScore.score_total).length
                       return (
                         <Link
                           key={ville.code_insee}
@@ -112,13 +114,17 @@ export default function QuartiersPage() {
               <div className="space-y-4 text-neutral-700">
                 <p>
                   Les pages "quartiers à surveiller" identifient les zones présentant des indicateurs
-                  statistiques moins favorables pour l'investissement locatif classique :
+                  statistiques moins favorables pour l'investissement locatif classique. Un quartier est signalé
+                  s'il remplit au moins 2 des critères suivants :
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li><strong>Taux de vacance élevé</strong> : plus de 10% de logements inoccupés</li>
-                  <li><strong>Faible volume de transactions</strong> : moins de 5 ventes sur la période DVF</li>
-                  <li><strong>Population limitée</strong> : moins de 500 habitants</li>
                   <li><strong>Score d'investissement bas</strong> : inférieur à 55/100</li>
+                  <li><strong>Population limitée</strong> : moins de 500 habitants</li>
+                  <li><strong>Faible part de résidences principales</strong> : moins de 70% du parc immobilier</li>
+                  <li><strong>Pression résidentielle faible</strong> : score inférieur à 2/5</li>
+                  <li><strong>Forte proportion de seniors</strong> : plus de 35% de 60 ans et plus</li>
+                  <li><strong>Faible stabilité résidentielle</strong> : forte rotation des habitants</li>
                 </ul>
                 <p className="text-sm text-neutral-500 mt-6">
                   Ces informations sont fournies à titre indicatif et ne constituent pas un conseil en investissement.

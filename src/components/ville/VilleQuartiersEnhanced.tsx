@@ -3,6 +3,8 @@
 import React, { useState, useMemo } from 'react'
 import { Ville, Quartier } from '@/types/ville'
 import { calculateAllQuartiersScores } from '@/lib/scoring-quartiers'
+import { calculateInvestmentScore } from '@/lib/scoring'
+import { getAllVilles } from '@/lib/data'
 import Card from '@/components/ui/Card'
 import QuartiersTop10 from './QuartiersTop10'
 
@@ -32,10 +34,16 @@ export default function VilleQuartiersEnhanced({ ville }: VilleQuartiersEnhanced
     }).format(num) + '%'
   }
 
+  // Calculer le score de la ville pour pondérer les scores quartiers
+  const villeScoreData = useMemo(() => {
+    const allVilles = getAllVilles()
+    return calculateInvestmentScore(ville, allVilles)
+  }, [ville])
+
   // Calculer les scores de tous les quartiers
   const quartiersWithScores = useMemo(() => {
-    return calculateAllQuartiersScores(ville.quartiers)
-  }, [ville.quartiers])
+    return calculateAllQuartiersScores(ville.quartiers, villeScoreData.score_total)
+  }, [ville.quartiers, villeScoreData.score_total])
 
   // Filtrer et trier les quartiers
   const quartiersFiltered = useMemo(() => {
@@ -209,7 +217,7 @@ export default function VilleQuartiersEnhanced({ ville }: VilleQuartiersEnhanced
       </div>
 
       {/* Top 10 des quartiers */}
-      <QuartiersTop10 quartiers={ville.quartiers} villeNom={ville.nom} />
+      <QuartiersTop10 quartiers={ville.quartiers} villeNom={ville.nom} villeScore={villeScoreData.score_total} />
 
       {/* Grille des quartiers */}
       {quartiersFiltered.length === 0 ? (

@@ -1,8 +1,9 @@
 import { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getVilleBySlug, getAllVilleSlugs, villeToSlug, getVilleDVF } from '@/lib/data'
+import { getVilleBySlug, getAllVilleSlugs, villeToSlug, getVilleDVF, getAllVilles } from '@/lib/data'
 import { getQuartiersAEviter } from '@/lib/scoring-quartiers'
+import { calculateInvestmentScore } from '@/lib/scoring'
 import QuartiersAEviterSection from '@/components/ville/QuartiersAEviterSection'
 import Section from '@/components/ui/Section'
 import Container from '@/components/ui/Container'
@@ -26,7 +27,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const title = `Quartiers à éviter à ${ville.nom} : Analyse des zones moins favorables`
-  const description = `Découvrez les quartiers à éviter pour investir à ${ville.nom}. Analyse factuelle basée sur les données INSEE et DVF : taux de vacance, transactions, population. Guide pour éviter les mauvais investissements.`
+  const description = `Découvrez les quartiers à éviter pour investir à ${ville.nom}. Analyse factuelle basée sur les données INSEE : taux de vacance, démographie, stabilité résidentielle. Guide pour éviter les mauvais investissements.`
 
   return {
     title,
@@ -76,7 +77,10 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
     notFound()
   }
 
-  const quartiersAEviter = getQuartiersAEviter(ville.quartiers, 50)
+  // Calculer le score de la ville pour pondérer les scores quartiers
+  const allVilles = getAllVilles()
+  const villeScore = calculateInvestmentScore(ville, allVilles)
+  const quartiersAEviter = getQuartiersAEviter(ville.quartiers, 50, villeScore.score_total)
   const dvfData = getVilleDVF(ville)
   const stats = ville.stats_agregees
 
@@ -135,7 +139,7 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
           </h1>
           <p className="text-lg text-neutral-300 max-w-3xl">
             Découvrez les quartiers à éviter à {ville.nom} ({ville.departement.name}) pour votre investissement locatif.
-            Analyse basée sur les données officielles INSEE et DVF.
+            Analyse basée sur les données officielles INSEE.
           </p>
 
           {/* Stats rapides */}
@@ -149,8 +153,8 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
               <span className="ml-2 font-bold">{quartiersAEviter.length}</span>
             </div>
             <div className="bg-white/10 rounded-lg px-4 py-2">
-              <span className="text-neutral-400 text-sm">Sources</span>
-              <span className="ml-2 font-bold">INSEE, DVF</span>
+              <span className="text-neutral-400 text-sm">Source</span>
+              <span className="ml-2 font-bold">INSEE</span>
             </div>
           </div>
         </div>
@@ -275,7 +279,7 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
             Notre analyse se base sur des <strong>critères objectifs et mesurables</strong>. Un quartier est signalé
             lorsqu'il cumule <strong>au moins 2 des indicateurs</strong> suivants :
           </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             <div className="bg-white rounded-lg p-4 border border-neutral-200">
               <div className="text-2xl mb-2">🏚️</div>
               <div className="font-medium text-neutral-900">Taux de vacance &gt; 10%</div>
@@ -292,9 +296,24 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
               <div className="text-sm text-neutral-600">Quartier peu dense, services limités</div>
             </div>
             <div className="bg-white rounded-lg p-4 border border-neutral-200">
-              <div className="text-2xl mb-2">📉</div>
-              <div className="font-medium text-neutral-900">Transactions &lt; 5</div>
-              <div className="text-sm text-neutral-600">Marché peu liquide, revente difficile</div>
+              <div className="text-2xl mb-2">🏠</div>
+              <div className="font-medium text-neutral-900">Résidences principales &lt; 70%</div>
+              <div className="text-sm text-neutral-600">Forte proportion de logements secondaires ou vacants</div>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-neutral-200">
+              <div className="text-2xl mb-2">📈</div>
+              <div className="font-medium text-neutral-900">Pression résidentielle &lt; 2/5</div>
+              <div className="text-sm text-neutral-600">Faible tension sur le marché locatif</div>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-neutral-200">
+              <div className="text-2xl mb-2">👴</div>
+              <div className="font-medium text-neutral-900">60+ ans &gt; 35%</div>
+              <div className="text-sm text-neutral-600">Population vieillissante, moins de demande locative</div>
+            </div>
+            <div className="bg-white rounded-lg p-4 border border-neutral-200">
+              <div className="text-2xl mb-2">🔄</div>
+              <div className="font-medium text-neutral-900">Faible stabilité résidentielle</div>
+              <div className="text-sm text-neutral-600">Fort turnover des habitants</div>
             </div>
           </div>
         </div>
@@ -319,7 +338,7 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
                     Avertissement
                   </h3>
                   <p className="text-sm text-neutral-600 leading-relaxed mb-4">
-                    Les données présentées sont issues de sources officielles (INSEE, DVF/Etalab) et ont un caractère
+                    Les données présentées sont issues de sources officielles (INSEE) et ont un caractère
                     purement factuel. Elles ne constituent en aucun cas une recommandation d'investissement ni un
                     jugement sur la qualité de vie dans ces quartiers.
                   </p>

@@ -9,7 +9,7 @@ import { Quartier } from '@/types/ville'
  * Basé sur 5 critères pondérés :
  *
  * 1. ACCESSIBILITÉ DU MARCHÉ (25 points)
- *    - Prix médian au m² DVF (appartements/maisons)
+ *    - Prix médian au m² (basé sur données ville)
  *    - Stabilité des prix (dispersion P75-P25)
  *
  * 2. POTENTIEL LOCATIF (30 points)
@@ -24,8 +24,7 @@ import { Quartier } from '@/types/ville'
  *
  * 4. VOLUME ET QUALITÉ (15 points)
  *    - Nombre de logements (profondeur du marché local)
- *    - Volume de transactions DVF
- *    - Qualité des données
+ *    - Qualité des données disponibles
  *
  * 5. STABILITÉ RÉSIDENTIELLE (5 points)
  *    - Indicateur de stabilité résidentielle
@@ -67,58 +66,56 @@ function normalize(
 
 /**
  * Calcule le score d'accessibilité du marché pour un quartier (0-25 points)
+ * Note: Les données de prix au niveau quartier ne sont pas disponibles,
+ * le score est basé sur le taux de vacance et la composition du parc immobilier
  */
 function calculateAccessibiliteMarche(quartier: Quartier, allQuartiers: Quartier[]): number {
-  const dvfAppt = quartier.dvf_appartements
-  const dvfMaison = quartier.dvf_maisons
+  const stats = quartier.stats_insee
 
-  if (!dvfAppt && !dvfMaison) {
-    // Pas de données DVF, score neutre
-    return 13
+  // Taux de vacance faible = marché plus tendu = moins accessible (0-10 points)
+  // Taux de vacance élevé = plus d'opportunités = plus accessible
+  const tauxVacance = stats.taux_vacance_pct || 5
+  let scoreVacance = 0
+  if (tauxVacance < 3) {
+    scoreVacance = 5 // Marché très tendu
+  } else if (tauxVacance < 6) {
+    scoreVacance = 7 // Marché équilibré
+  } else if (tauxVacance < 10) {
+    scoreVacance = 9 // Bonnes opportunités
+  } else {
+    scoreVacance = 10 // Beaucoup d'opportunités (mais attention aux risques)
   }
 
-  // Calculer prix médian du quartier
-  let prixMedian = 0
-  let count = 0
+  // Part de résidences principales = indicateur de stabilité du marché (0-10 points)
+  const totalLogements = stats.logements?.total || 1
+  const resPrincipales = stats.logements?.residences_principales || 0
+  const pctResPrincipales = (resPrincipales / totalLogements) * 100
 
-  if (dvfAppt && dvfAppt.prix_m2_median) {
-    prixMedian += dvfAppt.prix_m2_median
-    count++
-  }
-  if (dvfMaison && dvfMaison.prix_m2_median) {
-    prixMedian += dvfMaison.prix_m2_median
-    count++
-  }
-
-  if (count === 0) return 13
-
-  prixMedian = prixMedian / count
-
-  // Utiliser des échelles ABSOLUES nationales (pas relatives à la ville)
-  // Prix accessibles = meilleur score (inverse = true)
-  const scorePrix = normalize(prixMedian, 1500, 12000, 15, true)
-
-  // Dispersion des prix (stabilité)
-  let dispersion = 0
-  let dispersionCount = 0
-
-  if (dvfAppt && dvfAppt.prix_m2_p75 && dvfAppt.prix_m2_p25) {
-    dispersion += dvfAppt.prix_m2_p75 - dvfAppt.prix_m2_p25
-    dispersionCount++
-  }
-  if (dvfMaison && dvfMaison.prix_m2_p75 && dvfMaison.prix_m2_p25) {
-    dispersion += dvfMaison.prix_m2_p75 - dvfMaison.prix_m2_p25
-    dispersionCount++
+  let scoreResidences = 0
+  if (pctResPrincipales >= 80) {
+    scoreResidences = 10 // Très résidentiel, marché stable
+  } else if (pctResPrincipales >= 70) {
+    scoreResidences = 8
+  } else if (pctResPrincipales >= 60) {
+    scoreResidences = 6
+  } else {
+    scoreResidences = 4 // Beaucoup de résidences secondaires/vacantes
   }
 
-  if (dispersionCount > 0) {
-    dispersion = dispersion / dispersionCount
-    // Faible dispersion = marché stable = meilleur score
-    const scoreDispersion = normalize(dispersion, 300, 4000, 10, true)
-    return scorePrix + scoreDispersion
+  // Taille du marché local (0-5 points)
+  const nbLogements = stats.logements?.total || 0
+  let scoreTaille = 0
+  if (nbLogements >= 2000) {
+    scoreTaille = 5
+  } else if (nbLogements >= 1000) {
+    scoreTaille = 4
+  } else if (nbLogements >= 500) {
+    scoreTaille = 3
+  } else {
+    scoreTaille = 2
   }
 
-  return scorePrix + 6 // Score neutre pour dispersion
+  return scoreVacance + scoreResidences + scoreTaille
 }
 
 /**
@@ -217,61 +214,39 @@ function calculateDemographie(quartier: Quartier, allQuartiers: Quartier[]): num
 function calculateVolumeQualite(quartier: Quartier, allQuartiers: Quartier[]): number {
   const stats = quartier.stats_insee
 
-  // Nombre de logements : profondeur du marché (échelle absolue)
+  // Nombre de logements : profondeur du marché (échelle absolue, 0-9 points)
   const nbLogements = stats.logements.total
   let scoreLogements = 0
 
   if (nbLogements < 300) {
-    scoreLogements = 3
-  } else if (nbLogements < 600) {
     scoreLogements = 4
-  } else if (nbLogements < 1000) {
-    scoreLogements = 5
-  } else if (nbLogements < 2000) {
+  } else if (nbLogements < 600) {
     scoreLogements = 5.5
+  } else if (nbLogements < 1000) {
+    scoreLogements = 7
+  } else if (nbLogements < 2000) {
+    scoreLogements = 8
   } else {
-    scoreLogements = 6
+    scoreLogements = 9
   }
 
-  // Volume de transactions DVF
-  let nbVentes = 0
-  if (quartier.dvf_appartements?.nb_ventes) {
-    nbVentes += quartier.dvf_appartements.nb_ventes
-  }
-  if (quartier.dvf_maisons?.nb_ventes) {
-    nbVentes += quartier.dvf_maisons.nb_ventes
-  }
+  // Population : indicateur de dynamisme du quartier (0-6 points)
+  const population = stats.population || 0
+  let scorePopulation = 0
 
-  let scoreVolume = 0
-  if (nbVentes === 0) {
-    scoreVolume = 2
-  } else if (nbVentes < 10) {
-    scoreVolume = 3
-  } else if (nbVentes < 30) {
-    scoreVolume = 4.5
-  } else if (nbVentes < 60) {
-    scoreVolume = 5.5
+  if (population < 500) {
+    scorePopulation = 2
+  } else if (population < 1000) {
+    scorePopulation = 3
+  } else if (population < 2000) {
+    scorePopulation = 4
+  } else if (population < 5000) {
+    scorePopulation = 5
   } else {
-    scoreVolume = 6
+    scorePopulation = 6
   }
 
-  // Qualité des données
-  let scoreQualite = 3 // Par défaut
-
-  const qualiteAppt = quartier.dvf_appartements?.qualite_donnees?.toLowerCase() || ''
-  const qualiteMaison = quartier.dvf_maisons?.qualite_donnees?.toLowerCase() || ''
-
-  if (qualiteAppt.includes('bon') || qualiteMaison.includes('bon')) {
-    scoreQualite = 3
-  } else if (qualiteAppt.includes('moyen') || qualiteMaison.includes('moyen')) {
-    scoreQualite = 2.5
-  } else if (qualiteAppt.includes('faible') || qualiteMaison.includes('faible')) {
-    scoreQualite = 2
-  } else if (!quartier.dvf_appartements && !quartier.dvf_maisons) {
-    scoreQualite = 1.5
-  }
-
-  return scoreLogements + scoreVolume + scoreQualite
+  return scoreLogements + scorePopulation
 }
 
 /**
@@ -295,10 +270,13 @@ function calculateStabilite(quartier: Quartier, allQuartiers: Quartier[]): numbe
 
 /**
  * Calcule le score d'investissement complet pour un quartier
+ * @param villeScore - Score de la ville (0-100) pour pondérer le score quartier
+ * Un quartier dans une ville à score 50 ne peut pas dépasser ~70
  */
 export function calculateQuartierScore(
   quartier: Quartier,
-  allQuartiersVille: Quartier[]
+  allQuartiersVille: Quartier[],
+  villeScore: number = 70
 ): ScoreQuartierDetail {
   const accessibilite_marche = calculateAccessibiliteMarche(quartier, allQuartiersVille)
   const potentiel_locatif = calculatePotentielLocatif(quartier, allQuartiersVille)
@@ -306,33 +284,40 @@ export function calculateQuartierScore(
   const volume_qualite = calculateVolumeQualite(quartier, allQuartiersVille)
   const stabilite = calculateStabilite(quartier, allQuartiersVille)
 
-  const score_total = Math.round(
-    accessibilite_marche +
+  const score_brut = accessibilite_marche +
     potentiel_locatif +
     demographie +
     volume_qualite +
     stabilite
-  )
+
+  // Pondération par le score ville
+  // Formule: score_final = score_brut * (0.4 + 0.6 * villeScore / 100)
+  // Ville score 100 → multiplicateur 1.0
+  // Ville score 50 → multiplicateur 0.7 → quartiers max ~70
+  const multiplicateur = 0.4 + 0.6 * (villeScore / 100)
+  const score_total = Math.round(score_brut * multiplicateur)
 
   return {
     score_total,
-    accessibilite_marche: Math.round(accessibilite_marche * 10) / 10,
-    potentiel_locatif: Math.round(potentiel_locatif * 10) / 10,
-    demographie: Math.round(demographie * 10) / 10,
-    volume_qualite: Math.round(volume_qualite * 10) / 10,
-    stabilite: Math.round(stabilite * 10) / 10,
+    accessibilite_marche: Math.round(accessibilite_marche * multiplicateur * 10) / 10,
+    potentiel_locatif: Math.round(potentiel_locatif * multiplicateur * 10) / 10,
+    demographie: Math.round(demographie * multiplicateur * 10) / 10,
+    volume_qualite: Math.round(volume_qualite * multiplicateur * 10) / 10,
+    stabilite: Math.round(stabilite * multiplicateur * 10) / 10,
   }
 }
 
 /**
  * Calcule les scores pour tous les quartiers d'une ville et retourne le classement
+ * @param villeScore - Score de la ville pour pondérer les scores quartiers
  */
 export function calculateAllQuartiersScores(
-  quartiers: Quartier[]
+  quartiers: Quartier[],
+  villeScore: number = 70
 ): Array<{ quartier: Quartier; score: ScoreQuartierDetail }> {
   const results = quartiers.map(quartier => ({
     quartier,
-    score: calculateQuartierScore(quartier, quartiers)
+    score: calculateQuartierScore(quartier, quartiers, villeScore)
   }))
 
   // Trier par score décroissant
@@ -348,32 +333,36 @@ export function calculateAllQuartiersScores(
 
 /**
  * Récupère le top N des quartiers d'une ville
+ * @param villeScore - Score de la ville pour pondérer les scores quartiers
  */
 export function getTopQuartiers(
   quartiers: Quartier[],
-  limit: number = 10
+  limit: number = 10,
+  villeScore: number = 70
 ): Array<{ quartier: Quartier; score: ScoreQuartierDetail }> {
-  const allScores = calculateAllQuartiersScores(quartiers)
+  const allScores = calculateAllQuartiersScores(quartiers, villeScore)
   return allScores.slice(0, Math.min(limit, quartiers.length))
 }
 
 /**
  * Récupère le score d'un quartier spécifique avec son rang
+ * @param villeScore - Score de la ville pour pondérer les scores quartiers
  */
 export function getQuartierScore(
   quartier: Quartier,
-  allQuartiersVille: Quartier[]
+  allQuartiersVille: Quartier[],
+  villeScore: number = 70
 ): ScoreQuartierDetail {
-  const allScores = calculateAllQuartiersScores(allQuartiersVille)
+  const allScores = calculateAllQuartiersScores(allQuartiersVille, villeScore)
   const result = allScores.find(r => r.quartier.iris_id === quartier.iris_id)
-  return result ? result.score : calculateQuartierScore(quartier, allQuartiersVille)
+  return result ? result.score : calculateQuartierScore(quartier, allQuartiersVille, villeScore)
 }
 
 /**
  * Interface pour les raisons factuelles d'éviter un quartier
  */
 export interface RaisonEviter {
-  type: 'vacance' | 'population' | 'transactions' | 'score' | 'residences'
+  type: 'vacance' | 'population' | 'score' | 'residences' | 'pression' | 'seniors' | 'stabilite'
   label: string
   valeur: string
   description: string
@@ -424,17 +413,6 @@ function generateRaisonsEviter(quartier: Quartier, score: ScoreQuartierDetail): 
     })
   }
 
-  // Faible volume de transactions
-  const nbVentes = (quartier.dvf_appartements?.nb_ventes || 0) + (quartier.dvf_maisons?.nb_ventes || 0)
-  if (nbVentes < 5) {
-    raisons.push({
-      type: 'transactions',
-      label: 'Faible volume de transactions',
-      valeur: `${nbVentes} vente${nbVentes > 1 ? 's' : ''} sur la période`,
-      description: 'Un faible nombre de transactions peut rendre la revente plus difficile et les prix moins prévisibles.'
-    })
-  }
-
   // Score global bas
   if (score.score_total < 50) {
     raisons.push({
@@ -450,12 +428,45 @@ function generateRaisonsEviter(quartier: Quartier, score: ScoreQuartierDetail): 
   const resPrincipales = stats.logements?.residences_principales || 0
   const pctResPrincipales = totalLogements > 0 ? (resPrincipales / totalLogements) * 100 : 100
 
-  if (pctResPrincipales < 65 && totalLogements > 100) {
+  if (pctResPrincipales < 70 && totalLogements > 100) {
     raisons.push({
       type: 'residences',
       label: 'Faible part de résidences principales',
       valeur: `${pctResPrincipales.toFixed(1)}%`,
       description: 'Une proportion élevée de résidences secondaires ou vacantes peut indiquer un quartier moins dynamique.'
+    })
+  }
+
+  // Faible pression résidentielle
+  const pression = quartier.indicateurs_calcules?.pression_residentielle || 3
+  if (pression < 2) {
+    raisons.push({
+      type: 'pression',
+      label: 'Faible pression résidentielle',
+      valeur: `${pression.toFixed(1)}/5`,
+      description: 'Une faible pression indique peu de tension sur le marché locatif, potentiellement moins de demande.'
+    })
+  }
+
+  // Forte proportion de 60+ ans
+  const pct60Plus = stats.pct_60_plus_ans || 0
+  if (pct60Plus > 35) {
+    raisons.push({
+      type: 'seniors',
+      label: 'Forte proportion de seniors',
+      valeur: `${pct60Plus.toFixed(1)}% de 60+ ans`,
+      description: 'Un quartier vieillissant peut avoir moins de demande locative de la part des actifs et jeunes ménages.'
+    })
+  }
+
+  // Faible stabilité résidentielle
+  const stabilite = quartier.indicateurs_calcules?.stabilite_residentielle?.toLowerCase() || ''
+  if (stabilite.includes('faible')) {
+    raisons.push({
+      type: 'stabilite',
+      label: 'Faible stabilité résidentielle',
+      valeur: 'Turnover élevé',
+      description: 'Un fort renouvellement de population peut indiquer un quartier peu attractif sur le long terme.'
     })
   }
 
@@ -470,16 +481,21 @@ function generateRaisonsEviter(quartier: Quartier, score: ScoreQuartierDetail): 
  * - Taux de vacance > 10%
  * - Score d'investissement < 55/100
  * - Population < 500 habitants
- * - Moins de 5 transactions DVF
+ * - Part de résidences principales < 70%
+ * - Pression résidentielle faible (< 2/5)
+ * - Forte proportion de 60+ ans (> 35%)
+ * - Faible stabilité résidentielle
  *
+ * @param villeScore - Score de la ville pour pondérer les scores quartiers
  * Retourne au minimum 5 quartiers (complète avec les pires scores si nécessaire)
  */
 export function getQuartiersAEviter(
   quartiers: Quartier[],
-  limit: number = 50
+  limit: number = 50,
+  villeScore: number = 70
 ): QuartierAEviter[] {
   const MIN_QUARTIERS = 5
-  const allScores = calculateAllQuartiersScores(quartiers)
+  const allScores = calculateAllQuartiersScores(quartiers, villeScore)
 
   // Filtrer les quartiers avec au moins une population valide
   const quartiersValides = allScores.filter(
@@ -489,14 +505,22 @@ export function getQuartiersAEviter(
   // Calculer les données pour tous les quartiers
   const allQuartiersWithData = quartiersValides.map(({ quartier, score }) => {
     const stats = quartier.stats_insee
-    const nbVentes = (quartier.dvf_appartements?.nb_ventes || 0) + (quartier.dvf_maisons?.nb_ventes || 0)
+    const totalLogements = stats.logements?.total || 0
+    const resPrincipales = stats.logements?.residences_principales || 0
+    const pctResPrincipales = totalLogements > 0 ? (resPrincipales / totalLogements) * 100 : 100
+    const pression = quartier.indicateurs_calcules?.pression_residentielle || 3
+    const pct60Plus = stats.pct_60_plus_ans || 0
+    const stabilite = quartier.indicateurs_calcules?.stabilite_residentielle?.toLowerCase() || ''
 
     // Compter le nombre de critères remplis
     const criteres = [
-      stats.taux_vacance_pct > 10,           // Vacance élevée
-      score.score_total < 55,                 // Score bas
-      (stats.population || 0) < 500,          // Population faible
-      nbVentes < 5,                           // Peu de transactions
+      stats.taux_vacance_pct > 10,                    // Vacance élevée
+      score.score_total < 55,                          // Score bas
+      (stats.population || 0) < 500,                   // Population faible
+      pctResPrincipales < 70 && totalLogements > 100,  // Faible part résidences principales
+      pression < 2,                                    // Faible pression résidentielle
+      pct60Plus > 35,                                  // Forte proportion 60+ ans
+      stabilite.includes('faible'),                    // Faible stabilité résidentielle
     ]
 
     const nbCriteres = criteres.filter(Boolean).length

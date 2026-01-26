@@ -1,6 +1,8 @@
 import React from 'react'
 import { Ville } from '@/types/ville'
 import { calculateAllQuartiersScores } from '@/lib/scoring-quartiers'
+import { calculateInvestmentScore } from '@/lib/scoring'
+import { getAllVilles } from '@/lib/data'
 
 interface VilleMeilleursQuartiersProps {
   ville: Ville
@@ -10,7 +12,10 @@ interface VilleMeilleursQuartiersProps {
  * VilleMeilleursQuartiers - Contenu SEO pour "meilleurs quartiers pour investir à {ville}"
  */
 export default function VilleMeilleursQuartiers({ ville }: VilleMeilleursQuartiersProps) {
-  const quartiersWithScores = calculateAllQuartiersScores(ville.quartiers)
+  // Calculer le score de la ville pour pondérer les scores quartiers
+  const allVilles = getAllVilles()
+  const villeScore = calculateInvestmentScore(ville, allVilles)
+  const quartiersWithScores = calculateAllQuartiersScores(ville.quartiers, villeScore.score_total)
   const quartiersValides = quartiersWithScores
     .filter(({ quartier }) => quartier.stats_insee.population && quartier.stats_insee.population > 0)
     .sort((a, b) => b.score.score_total - a.score.score_total)
@@ -55,9 +60,10 @@ export default function VilleMeilleursQuartiers({ ville }: VilleMeilleursQuartie
             </p>
 
             <p>
-              Cette analyse se base sur les données officielles de l'INSEE et des fichiers DVF (Demandes de Valeurs Foncières)
+              Cette analyse se base sur les données officielles de l'INSEE
               pour comparer objectivement les quartiers de {ville.nom}. Chaque quartier est évalué selon plusieurs critères :
-              démographie, taux de vacance, prix au m², et dynamisme du marché. Ces informations sont fournies à titre indicatif
+              démographie, taux de vacance, pression résidentielle et stabilité du marché. Les scores sont pondérés par le score
+              de la ville ({villeScore.score_total}/100) pour une meilleure cohérence. Ces informations sont fournies à titre indicatif
               et ne constituent pas un conseil en investissement.
             </p>
           </div>
