@@ -5,6 +5,7 @@ import { getVilleBySlug, getAllVilleSlugs, villeToSlug, getVilleDVF, getAllVille
 import { getQuartiersAEviter } from '@/lib/scoring-quartiers'
 import { calculateInvestmentScore } from '@/lib/scoring'
 import QuartiersAEviterSection from '@/components/ville/QuartiersAEviterSection'
+import MaillageInterneVilles from '@/components/ville/MaillageInterneVilles'
 import Section from '@/components/ui/Section'
 import Container from '@/components/ui/Container'
 
@@ -321,6 +322,9 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
 
       {/* Liste des quartiers */}
       <QuartiersAEviterSection ville={ville} />
+
+      {/* Maillage interne - liens vers autres villes */}
+      <MaillageInterneVilles ville={ville} type="quartiers-a-eviter" />
 
       {/* Avertissement final */}
       <Section background="gray">

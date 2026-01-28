@@ -12,6 +12,7 @@ import VilleDVF from '@/components/ville/VilleDVF'
 import VilleContentSEO from '@/components/ville/VilleContentSEO'
 import VilleMeilleursQuartiers from '@/components/ville/VilleMeilleursQuartiers'
 import VilleQuartiersEnhanced from '@/components/ville/VilleQuartiersEnhanced'
+import MaillageInterneVilles from '@/components/ville/MaillageInterneVilles'
 import Section from '@/components/ui/Section'
 import Container from '@/components/ui/Container'
 
@@ -156,6 +157,9 @@ export default function VillePage({ params }: VillePageProps) {
 
       {/* Section quartiers avec recherche et pagination */}
       <VilleQuartiersEnhanced ville={ville} />
+
+      {/* Maillage interne - liens vers autres villes */}
+      <MaillageInterneVilles ville={ville} type="investir" />
 
       {/* Avertissement */}
       <Section background="gray">
