@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Politique de confidentialité',
-  description: 'Politique de confidentialité et protection des données personnelles de Club House Immobilier.',
+  description: 'Politique de confidentialité de Club House Immobilier. Informations sur la collecte, l\'utilisation et la protection de vos données personnelles conformément au RGPD.',
   alternates: {
     canonical: '/politique-confidentialite',
   },

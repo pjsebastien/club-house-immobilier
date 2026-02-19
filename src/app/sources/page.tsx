@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Sources de données',
-  description: 'Découvrez les sources de données officielles utilisées par Club House Immobilier.',
+  description: 'Sources de données officielles utilisées par Club House Immobilier : INSEE (recensement, logements), DVF/Etalab (transactions immobilières) et API gouvernementales.',
   alternates: {
     canonical: '/sources',
   },
@@ -35,10 +35,12 @@ export default function SourcesPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                    INSEE
+                    <a href="https://www.insee.fr" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                      INSEE
+                    </a>
                   </h3>
                   <p className="text-neutral-600 leading-relaxed mb-4">
-                    L'Institut national de la statistique et des études économiques fournit
+                    L'<a href="https://www.insee.fr" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">Institut national de la statistique et des études économiques</a> fournit
                     les données démographiques, économiques et sociales des territoires français.
                   </p>
                   <ul className="space-y-2 text-sm text-neutral-600">
@@ -66,11 +68,13 @@ export default function SourcesPage() {
                 </div>
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold text-neutral-900 mb-3">
-                    DVF / Etalab
+                    <a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/" target="_blank" rel="noopener noreferrer" className="hover:text-primary-600 transition-colors">
+                      DVF / Etalab
+                    </a>
                   </h3>
                   <p className="text-neutral-600 leading-relaxed mb-4">
-                    Demande de Valeurs Foncières : base de données open data des transactions
-                    immobilières en France, mise à disposition par Etalab.
+                    <a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">Demande de Valeurs Foncières</a> : base de données open data des transactions
+                    immobilières en France, mise à disposition par <a href="https://www.etalab.gouv.fr" target="_blank" rel="noopener noreferrer" className="text-primary-600 hover:underline">Etalab</a>.
                   </p>
                   <ul className="space-y-2 text-sm text-neutral-600">
                     <li className="flex items-start">

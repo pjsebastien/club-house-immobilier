@@ -7,10 +7,10 @@ import HowItWorksSection from '@/components/sections/HowItWorksSection'
 import ResponsibleApproachSection from '@/components/sections/ResponsibleApproachSection'
 
 export const metadata: Metadata = {
-  title: 'Club House Immobilier - Analyse territoriale pour investisseurs',
-  description: 'Explorez et analysez les territoires français grâce à des données officielles INSEE et DVF. 134 villes et 6 577 quartiers IRIS pour éclairer vos décisions d\'investissement immobilier.',
+  title: 'Club House Immobilier - Où investir dans l\'immobilier en France',
+  description: 'Trouvez où investir dans l\'immobilier en France grâce aux données officielles INSEE et DVF. Analyse de 134 villes et 6 577 quartiers : prix au m², scores d\'investissement et classements.',
   alternates: {
-    canonical: '/',
+    canonical: 'https://www.clubhouseimmobilier.com/',
   },
 }
 

@@ -29,7 +29,7 @@ export default function VilleContentSEO({ ville }: VilleContentSEOProps) {
           {/* Section 1 : Investir à {ville} */}
           <div className="mb-12">
             <h2 className="text-3xl font-bold text-neutral-900 mb-6">
-              Investir à {ville.nom}
+              Guide d'investissement immobilier à {ville.nom}
             </h2>
 
             <div className="text-base text-neutral-700 leading-relaxed space-y-4">

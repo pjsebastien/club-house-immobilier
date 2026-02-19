@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Ville } from '@/types/ville'
 import Container from '@/components/ui/Container'
 import { getVilleScore } from '@/lib/scoring'
-import { getAllVilles, villeToSlug } from '@/lib/data'
+import { getAllVilles, villeToSlug, getVilleDVF } from '@/lib/data'
 import JsonLd from '@/components/seo/JsonLd'
 
 interface VilleHeaderProps {
@@ -18,6 +18,7 @@ export default function VilleHeader({ ville }: VilleHeaderProps) {
   const score = getVilleScore(ville, allVilles)
   const slug = villeToSlug(ville.nom)
   const baseUrl = 'https://www.clubhouseimmobilier.com'
+  const dvf = getVilleDVF(ville)
 
   return (
     <section className="bg-gradient-to-b from-primary-600 to-primary-700 pt-16 pb-12 text-white">
@@ -44,6 +45,42 @@ export default function VilleHeader({ ville }: VilleHeaderProps) {
               name: ville.nom,
               item: `${baseUrl}/villes/${slug}`,
             },
+          ],
+        }}
+      />
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'Place',
+          name: ville.nom,
+          description: `Analyse immobilière de ${ville.nom} (${ville.departement.name}) pour l'investissement locatif. Score : ${score.score_total}/100.`,
+          address: {
+            '@type': 'PostalAddress',
+            addressLocality: ville.nom,
+            addressRegion: ville.region.name,
+            addressCountry: 'FR',
+          },
+          additionalProperty: [
+            {
+              '@type': 'PropertyValue',
+              name: 'Population',
+              value: ville.stats_agregees.population_totale,
+            },
+            {
+              '@type': 'PropertyValue',
+              name: 'Nombre de quartiers IRIS',
+              value: ville.nb_quartiers_iris,
+            },
+            {
+              '@type': 'PropertyValue',
+              name: 'Taux de vacance',
+              value: `${(ville.stats_agregees.taux_vacance_moyen_pct || 0).toFixed(1)}%`,
+            },
+            ...(dvf.prix_m2_median_global ? [{
+              '@type': 'PropertyValue' as const,
+              name: 'Prix médian au m²',
+              value: `${dvf.prix_m2_median_global} €/m²`,
+            }] : []),
           ],
         }}
       />

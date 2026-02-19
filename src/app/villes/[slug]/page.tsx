@@ -34,8 +34,8 @@ export async function generateMetadata({ params }: VillePageProps): Promise<Meta
     }
   }
 
-  const title = `Investir à ${ville.nom} : Analyse immobilière à partir des données officielles`
-  const description = `Analyse immobilière de ${ville.nom} à partir des données INSEE et DVF : marché local, quartiers, indicateurs et comparaisons pour éclairer un projet d'investissement.`
+  const title = `Investir à ${ville.nom} - Analyse immobilière ${ville.departement.code}`
+  const description = `Investir à ${ville.nom} (${ville.departement.name}) : prix au m², ${ville.nb_quartiers_iris} quartiers analysés, score d'investissement et données officielles INSEE et DVF pour votre projet immobilier.`
 
   return {
     title,
@@ -48,11 +48,21 @@ export async function generateMetadata({ params }: VillePageProps): Promise<Meta
       description,
       type: 'article',
       locale: 'fr_FR',
+      url: `/villes/${params.slug}`,
+      images: [
+        {
+          url: '/images/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: `Investir à ${ville.nom} - Club House Immobilier`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ['/images/og-default.jpg'],
     },
   }
 }

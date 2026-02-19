@@ -5,7 +5,7 @@ import { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Mentions légales',
-  description: 'Mentions légales du site Club House Immobilier.',
+  description: 'Mentions légales du site Club House Immobilier. Informations sur l\'éditeur, l\'hébergeur, les conditions d\'utilisation et la propriété intellectuelle du site.',
   alternates: {
     canonical: '/mentions-legales',
   },

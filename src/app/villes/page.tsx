@@ -4,6 +4,7 @@ import { Metadata } from 'next'
 import { getAllVilles, villeToSlug, getStatistiquesGlobales } from '@/lib/data'
 import { getVilleScore } from '@/lib/scoring'
 import VilleSearch from '@/components/ui/VilleSearch'
+import JsonLd from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Meilleures villes où investir en France - Classement et analyse',
@@ -36,6 +37,26 @@ export default function VillesPage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Accueil',
+              item: 'https://www.clubhouseimmobilier.com',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Villes',
+              item: 'https://www.clubhouseimmobilier.com/villes',
+            },
+          ],
+        }}
+      />
       {/* Hero Section */}
       <section className="bg-gradient-to-b from-primary-600 to-primary-700 pt-24 pb-16 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">

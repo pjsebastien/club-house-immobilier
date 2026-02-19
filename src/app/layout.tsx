@@ -20,10 +20,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.clubhouseimmobilier.com'),
   title: {
-    default: 'Club House Immobilier - Analyse territoriale pour investisseurs',
+    default: 'Club House Immobilier - Où investir dans l\'immobilier en France',
     template: '%s | Club House Immobilier'
   },
-  description: 'Explorez et analysez les territoires français grâce à des données officielles. Outils d\'aide à la décision pour investisseurs immobiliers.',
+  description: 'Trouvez où investir dans l\'immobilier en France. Analyse de 134 villes et 6 577 quartiers avec données officielles INSEE et DVF : prix, scores et classements.',
   authors: [{ name: 'Club House Immobilier' }],
   creator: 'Club House Immobilier',
   publisher: 'Club House Immobilier',
@@ -35,28 +35,25 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
-  alternates: {
-    canonical: './',
-  },
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
     siteName: 'Club House Immobilier',
-    title: 'Club House Immobilier - Analyse territoriale pour investisseurs',
-    description: 'Explorez et analysez les territoires français grâce à des données officielles.',
+    title: 'Club House Immobilier - Où investir dans l\'immobilier en France',
+    description: 'Trouvez où investir dans l\'immobilier en France. Analyse de 134 villes et 6 577 quartiers avec données officielles INSEE et DVF.',
     images: [
       {
         url: '/images/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Club House Immobilier - Analyse territoriale pour investisseurs',
+        alt: 'Club House Immobilier - Investissement immobilier en France',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Club House Immobilier',
-    description: 'Explorez et analysez les territoires français grâce à des données officielles.',
+    description: 'Trouvez où investir dans l\'immobilier en France. Analyse de 134 villes avec données officielles INSEE et DVF.',
     images: ['/images/og-default.jpg'],
   },
 }
@@ -75,12 +72,8 @@ export default function RootLayout({
             '@type': 'WebSite',
             name: 'Club House Immobilier',
             url: 'https://www.clubhouseimmobilier.com',
-            description: 'Explorez et analysez les territoires français grâce à des données officielles. Outils d\'aide à la décision pour investisseurs immobiliers.',
-            potentialAction: {
-              '@type': 'SearchAction',
-              target: 'https://www.clubhouseimmobilier.com/villes?q={search_term_string}',
-              'query-input': 'required name=search_term_string',
-            },
+            description: 'Trouvez où investir dans l\'immobilier en France. Analyse de 134 villes et 6 577 quartiers avec données officielles INSEE et DVF.',
+            inLanguage: 'fr-FR',
           }}
         />
         <JsonLd

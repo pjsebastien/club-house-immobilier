@@ -6,6 +6,7 @@ import { Metadata } from 'next'
 import { getAllVilles, villeToSlug } from '@/lib/data'
 import { getQuartiersAEviter } from '@/lib/scoring-quartiers'
 import { calculateInvestmentScore } from '@/lib/scoring'
+import JsonLd from '@/components/seo/JsonLd'
 
 export const metadata: Metadata = {
   title: 'Explorer les quartiers - Analyse par ville',
@@ -36,6 +37,26 @@ export default function QuartiersPage() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Accueil',
+              item: 'https://www.clubhouseimmobilier.com',
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Quartiers',
+              item: 'https://www.clubhouseimmobilier.com/quartiers',
+            },
+          ],
+        }}
+      />
       {/* Header */}
       <section className="bg-gradient-to-b from-neutral-900 to-neutral-800 text-white py-16">
         <Container>

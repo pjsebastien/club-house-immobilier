@@ -28,8 +28,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   }
 
-  const title = `Quartiers à éviter à ${ville.nom} : Analyse des zones moins favorables`
-  const description = `Découvrez les quartiers à éviter pour investir à ${ville.nom}. Analyse factuelle basée sur les données INSEE : taux de vacance, démographie, stabilité résidentielle. Guide pour éviter les mauvais investissements.`
+  const title = `Quartiers à éviter à ${ville.nom} - Analyse factuelle`
+  const description = `Quartiers à éviter pour investir à ${ville.nom} (${ville.departement.code}). Analyse basée sur les données INSEE : taux de vacance, démographie, stabilité résidentielle. ${ville.nb_quartiers_iris} quartiers analysés.`
 
   return {
     title,
@@ -42,11 +42,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description,
       type: 'article',
       locale: 'fr_FR',
+      url: `/villes/${params.slug}/quartiers-a-eviter`,
+      images: [
+        {
+          url: '/images/og-default.jpg',
+          width: 1200,
+          height: 630,
+          alt: `Quartiers à éviter à ${ville.nom} - Club House Immobilier`,
+        },
+      ],
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
+      images: ['/images/og-default.jpg'],
     },
   }
 }

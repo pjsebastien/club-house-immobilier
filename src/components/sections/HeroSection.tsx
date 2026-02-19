@@ -39,8 +39,8 @@ export default function HeroSection() {
 
           {/* Titre principal */}
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            Analysez les données immobilières<br />
-            <span className="text-primary-200">ville par ville, quartier par quartier</span>
+            Où investir dans l'immobilier en France ?<br />
+            <span className="text-primary-200">Analyse de {stats.nb_villes} villes et {formatNumber(stats.nb_total_iris)} quartiers</span>
           </h1>
 
           <p className="text-xl md:text-2xl text-primary-100 mb-10 leading-relaxed max-w-3xl mx-auto">

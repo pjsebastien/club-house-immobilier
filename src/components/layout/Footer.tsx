@@ -130,7 +130,10 @@ export default function Footer() {
               © {currentYear} Club House Immobilier. Tous droits réservés.
             </p>
             <div className="flex items-center space-x-6 text-sm text-neutral-400">
-              <span>Sources : INSEE, DVF/Etalab</span>
+              <span>Sources :
+                {' '}<a href="https://www.insee.fr" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">INSEE</a>,
+                {' '}<a href="https://www.data.gouv.fr/fr/datasets/demandes-de-valeurs-foncieres/" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors underline">DVF/Etalab</a>
+              </span>
             </div>
           </div>
         </div>
