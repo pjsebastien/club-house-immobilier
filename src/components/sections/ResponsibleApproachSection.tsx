@@ -103,9 +103,10 @@ export default function ResponsibleApproachSection() {
           {/* Image */}
           <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
             <Image
-              src="/images/ensemble immobilier.jpg"
+              src="/images/ensemble-immobilier.jpg"
               alt="Ensemble immobilier"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
           </div>

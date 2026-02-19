@@ -1,8 +1,10 @@
 import React from 'react'
+import Link from 'next/link'
 import { Ville } from '@/types/ville'
 import Container from '@/components/ui/Container'
 import { getVilleScore } from '@/lib/scoring'
-import { getAllVilles } from '@/lib/data'
+import { getAllVilles, villeToSlug } from '@/lib/data'
+import JsonLd from '@/components/seo/JsonLd'
 
 interface VilleHeaderProps {
   ville: Ville
@@ -14,17 +16,46 @@ interface VilleHeaderProps {
 export default function VilleHeader({ ville }: VilleHeaderProps) {
   const allVilles = getAllVilles()
   const score = getVilleScore(ville, allVilles)
+  const slug = villeToSlug(ville.nom)
+  const baseUrl = 'https://www.clubhouseimmobilier.com'
+
   return (
     <section className="bg-gradient-to-b from-primary-600 to-primary-700 pt-16 pb-12 text-white">
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Accueil',
+              item: baseUrl,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Villes',
+              item: `${baseUrl}/villes`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: ville.nom,
+              item: `${baseUrl}/villes/${slug}`,
+            },
+          ],
+        }}
+      />
       <Container>
         <div className="max-w-5xl">
           {/* Breadcrumb */}
-          <nav className="mb-6">
+          <nav className="mb-6" aria-label="Fil d'Ariane">
             <ol className="flex items-center space-x-2 text-sm text-primary-100">
               <li>
-                <a href="/" className="hover:text-white transition-colors">
+                <Link href="/" className="hover:text-white transition-colors">
                   Accueil
-                </a>
+                </Link>
               </li>
               <li>
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -32,9 +63,9 @@ export default function VilleHeader({ ville }: VilleHeaderProps) {
                 </svg>
               </li>
               <li>
-                <a href="/villes" className="hover:text-white transition-colors">
+                <Link href="/villes" className="hover:text-white transition-colors">
                   Villes
-                </a>
+                </Link>
               </li>
               <li>
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -51,10 +82,10 @@ export default function VilleHeader({ ville }: VilleHeaderProps) {
               <div className="flex items-start gap-4 mb-4">
                 <div>
                   <h1 className="text-4xl md:text-5xl font-bold mb-2">
-                    {ville.nom}
+                    Investir à {ville.nom}
                   </h1>
                   <p className="text-lg text-primary-100">
-                    Analyse complète pour investir dans l'immobilier locatif
+                    Analyse complète pour investir dans l&apos;immobilier locatif
                   </p>
                 </div>
 
@@ -119,7 +150,7 @@ export default function VilleHeader({ ville }: VilleHeaderProps) {
               <div className="bg-white rounded-2xl p-6 shadow-xl min-w-[200px]">
                 <div className="text-center">
                   <div className="text-sm font-semibold text-primary-600 uppercase tracking-wide mb-2">
-                    Score d'investissement
+                    Score d&apos;investissement
                   </div>
                   <div className="text-6xl font-bold text-primary-600 mb-2">
                     {score.score_total}

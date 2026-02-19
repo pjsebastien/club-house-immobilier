@@ -20,9 +20,10 @@ export default function HeroSection() {
       {/* Image de fond avec overlay */}
       <div className="absolute inset-0 opacity-10">
         <Image
-          src="/images/vue immobilière.jpg"
+          src="/images/vue-immobiliere.jpg"
           alt="Vue immobilière"
           fill
+          sizes="100vw"
           className="object-cover"
           priority
         />

@@ -5,12 +5,9 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Méthodologie - Score d\'investissement immobilier',
   description: 'Découvrez notre méthodologie de calcul du score d\'investissement basée sur 5 critères objectifs : accessibilité, potentiel locatif, dynamisme, démographie et liquidité.',
-  keywords: [
-    'méthodologie investissement immobilier',
-    'score investissement ville',
-    'critères investissement locatif',
-    'analyse territoriale méthodologie',
-  ],
+  alternates: {
+    canonical: '/methodologie',
+  },
 }
 
 /**

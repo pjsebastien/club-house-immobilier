@@ -6,6 +6,7 @@ import { getQuartiersAEviter } from '@/lib/scoring-quartiers'
 import { calculateInvestmentScore } from '@/lib/scoring'
 import QuartiersAEviterSection from '@/components/ville/QuartiersAEviterSection'
 import MaillageInterneVilles from '@/components/ville/MaillageInterneVilles'
+import JsonLd from '@/components/seo/JsonLd'
 import Section from '@/components/ui/Section'
 import Container from '@/components/ui/Container'
 
@@ -33,17 +34,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title,
     description,
-    keywords: [
-      `quartiers à éviter ${ville.nom}`,
-      `quartier à éviter ${ville.nom}`,
-      `où ne pas investir ${ville.nom}`,
-      `mauvais quartiers ${ville.nom}`,
-      `quartiers dangereux ${ville.nom}`,
-      `éviter ${ville.nom}`,
-      `investissement immobilier ${ville.nom}`,
-      ville.departement.name,
-      ville.region.name,
-    ],
+    alternates: {
+      canonical: `/villes/${params.slug}/quartiers-a-eviter`,
+    },
     openGraph: {
       title,
       description,
@@ -105,13 +98,47 @@ export default function QuartiersAEviterPage({ params }: PageProps) {
   const pctQuartiersAEviter = ((quartiersAEviter.length / ville.nb_quartiers_iris) * 100).toFixed(1)
   const tauxVacanceMoyen = stats.taux_vacance_moyen_pct
 
+  const baseUrl = 'https://www.clubhouseimmobilier.com'
+
   return (
     <>
+      <JsonLd
+        data={{
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            {
+              '@type': 'ListItem',
+              position: 1,
+              name: 'Accueil',
+              item: baseUrl,
+            },
+            {
+              '@type': 'ListItem',
+              position: 2,
+              name: 'Villes',
+              item: `${baseUrl}/villes`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 3,
+              name: ville.nom,
+              item: `${baseUrl}/villes/${villeToSlug(ville.nom)}`,
+            },
+            {
+              '@type': 'ListItem',
+              position: 4,
+              name: 'Quartiers à éviter',
+              item: `${baseUrl}/villes/${villeToSlug(ville.nom)}/quartiers-a-eviter`,
+            },
+          ],
+        }}
+      />
       {/* Header */}
       <section className="bg-gradient-to-b from-neutral-900 to-neutral-800 text-white py-12">
         <div className="max-w-5xl mx-auto px-6">
           {/* Breadcrumb */}
-          <nav className="mb-6 text-sm">
+          <nav className="mb-6 text-sm" aria-label="Fil d'Ariane">
             <ol className="flex items-center space-x-2 text-neutral-400">
               <li>
                 <Link href="/" className="hover:text-white transition-colors">

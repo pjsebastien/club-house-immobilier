@@ -10,6 +10,9 @@ import { calculateInvestmentScore } from '@/lib/scoring'
 export const metadata: Metadata = {
   title: 'Explorer les quartiers - Analyse par ville',
   description: 'Analysez les quartiers français en détail. Découvrez les quartiers à surveiller pour vos investissements immobiliers dans les 134 plus grandes villes de France.',
+  alternates: {
+    canonical: '/quartiers',
+  },
 }
 
 /**

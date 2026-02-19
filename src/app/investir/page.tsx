@@ -5,6 +5,10 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Investir dans l\'immobilier',
   description: 'Guides et ressources pour comprendre l\'investissement immobilier territorial en France.',
+  robots: {
+    index: false,
+    follow: true,
+  },
 }
 
 /**

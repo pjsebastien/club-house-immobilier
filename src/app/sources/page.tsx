@@ -6,6 +6,9 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Sources de données',
   description: 'Découvrez les sources de données officielles utilisées par Club House Immobilier.',
+  alternates: {
+    canonical: '/sources',
+  },
 }
 
 /**

@@ -8,18 +8,9 @@ import VilleSearch from '@/components/ui/VilleSearch'
 export const metadata: Metadata = {
   title: 'Meilleures villes où investir en France - Classement et analyse',
   description: 'Découvrez les meilleures villes françaises pour investir dans l\'immobilier. Classement des 134 villes de plus de 50 000 habitants avec analyse détaillée par quartier.',
-  keywords: [
-    'meilleures villes où investir en France',
-    'classement villes investissement immobilier',
-    'où investir immobilier France',
-    'villes rentables investissement',
-    'meilleure ville immobilier France',
-    'investissement locatif ville France',
-    'villes françaises',
-    'analyse territoriale',
-    'données INSEE',
-    'DVF',
-  ],
+  alternates: {
+    canonical: '/villes',
+  },
 }
 
 /**

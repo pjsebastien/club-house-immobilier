@@ -36,9 +36,10 @@ export default function AudienceSection() {
           {/* Image */}
           <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl order-2 lg:order-1">
             <Image
-              src="/images/investir dans l'immobilier, conseils.jpg"
+              src="/images/investir-immobilier-conseils.jpg"
               alt="Investir dans l'immobilier - conseils"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
           </div>

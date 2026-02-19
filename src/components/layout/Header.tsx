@@ -45,6 +45,7 @@ export default function Header() {
               alt="Club House Immobilier"
               width={40}
               height={40}
+              priority
               className="transition-transform group-hover:scale-105"
             />
             <span className="font-semibold text-lg text-neutral-900 hidden sm:block">

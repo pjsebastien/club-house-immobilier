@@ -6,13 +6,9 @@ import Container from '@/components/ui/Container'
 export const metadata: Metadata = {
   title: 'Comparateur de villes pour investissement immobilier',
   description: 'Comparez objectivement 2 à 5 villes françaises pour votre investissement immobilier. Données INSEE et DVF : population, logements, prix, taux de vacance.',
-  keywords: [
-    'comparateur villes investissement',
-    'comparer villes immobilier',
-    'investissement locatif comparaison',
-    'meilleure ville investir',
-    'comparatif immobilier France',
-  ],
+  alternates: {
+    canonical: '/outils/comparateur',
+  },
   openGraph: {
     title: 'Comparateur de villes pour investissement immobilier',
     description: 'Comparez objectivement 2 à 5 villes françaises pour votre investissement immobilier.',

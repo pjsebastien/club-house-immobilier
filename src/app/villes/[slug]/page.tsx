@@ -40,17 +40,9 @@ export async function generateMetadata({ params }: VillePageProps): Promise<Meta
   return {
     title,
     description,
-    keywords: [
-      `investir ${ville.nom}`,
-      `immobilier ${ville.nom}`,
-      `analyse ${ville.nom}`,
-      `quartiers ${ville.nom}`,
-      `${ville.departement.name}`,
-      `${ville.region.name}`,
-      'investissement immobilier',
-      'données INSEE',
-      'DVF',
-    ],
+    alternates: {
+      canonical: `/villes/${params.slug}`,
+    },
     openGraph: {
       title,
       description,

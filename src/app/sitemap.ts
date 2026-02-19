@@ -1,6 +1,9 @@
 import { MetadataRoute } from 'next'
 import { getAllVilles, villeToSlug } from '@/lib/data'
 
+// Date fixe de derniere mise a jour des donnees
+const DATA_LAST_UPDATED = new Date('2025-01-28')
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://www.clubhouseimmobilier.com'
   const villes = getAllVilles()
@@ -9,87 +12,90 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'weekly',
       priority: 1,
     },
     {
       url: `${baseUrl}/villes`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
       url: `${baseUrl}/methodologie`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/investir`,
-      lastModified: new Date(),
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
       url: `${baseUrl}/outils`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
     {
       url: `${baseUrl}/outils/comparateur`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/outils/budget`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: `${baseUrl}/quartiers`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'weekly',
       priority: 0.6,
     },
     {
       url: `${baseUrl}/sources`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: `${baseUrl}/mentions-legales`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
     {
       url: `${baseUrl}/politique-confidentialite`,
-      lastModified: new Date(),
+      lastModified: DATA_LAST_UPDATED,
       changeFrequency: 'yearly',
       priority: 0.3,
     },
   ]
 
-  // Pages des villes (toutes les 134 villes)
-  const villePages: MetadataRoute.Sitemap = villes.map((ville) => ({
-    url: `${baseUrl}/villes/${villeToSlug(ville.nom)}`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }))
+  // Pages des villes - deduplication par slug
+  const seenSlugs = new Set<string>()
+  const villePages: MetadataRoute.Sitemap = []
+  const quartiersAEviterPages: MetadataRoute.Sitemap = []
 
-  // Pages quartiers à éviter pour chaque ville
-  const quartiersAEviterPages: MetadataRoute.Sitemap = villes.map((ville) => ({
-    url: `${baseUrl}/villes/${villeToSlug(ville.nom)}/quartiers-a-eviter`,
-    lastModified: new Date(),
-    changeFrequency: 'monthly',
-    priority: 0.6,
-  }))
+  for (const ville of villes) {
+    const slug = villeToSlug(ville.nom)
+    if (seenSlugs.has(slug)) continue
+    seenSlugs.add(slug)
+
+    villePages.push({
+      url: `${baseUrl}/villes/${slug}`,
+      lastModified: DATA_LAST_UPDATED,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    })
+
+    quartiersAEviterPages.push({
+      url: `${baseUrl}/villes/${slug}/quartiers-a-eviter`,
+      lastModified: DATA_LAST_UPDATED,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    })
+  }
 
   return [...staticPages, ...villePages, ...quartiersAEviterPages]
 }

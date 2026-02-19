@@ -6,6 +6,9 @@ import { Metadata } from 'next'
 export const metadata: Metadata = {
   title: 'Outils d\'analyse immobilière | Comparateur et analyses',
   description: 'Outils d\'analyse territoriale et d\'aide à la décision pour investisseurs immobiliers. Comparateur de villes, analyses de quartiers.',
+  alternates: {
+    canonical: '/outils',
+  },
 }
 
 /**

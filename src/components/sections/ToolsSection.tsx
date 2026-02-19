@@ -90,9 +90,10 @@ export default function ToolsSection() {
           {/* Image */}
           <div className="relative h-[500px] rounded-2xl overflow-hidden shadow-2xl">
             <Image
-              src="/images/outil d'aide à l'investissement immobilier.jpg"
+              src="/images/outil-aide-investissement-immobilier.jpg"
               alt="Outil d'aide à l'investissement immobilier"
               fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />
           </div>

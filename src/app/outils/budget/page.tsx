@@ -6,7 +6,9 @@ import SimulateurBudget from '@/components/outils/SimulateurBudget'
 export const metadata: Metadata = {
   title: 'Simulateur budget immobilier | Villes accessibles selon votre budget',
   description: 'Découvrez dans quelles villes françaises vous pouvez investir selon votre budget et le type de bien recherché. Estimations basées sur données DVF.',
-  keywords: ['budget immobilier', 'investissement', 'villes accessibles', 'prix immobilier France'],
+  alternates: {
+    canonical: '/outils/budget',
+  },
 }
 
 export default function BudgetPage() {
