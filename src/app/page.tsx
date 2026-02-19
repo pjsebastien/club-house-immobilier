@@ -8,9 +8,9 @@ import ResponsibleApproachSection from '@/components/sections/ResponsibleApproac
 
 export const metadata: Metadata = {
   title: 'Club House Immobilier - Où investir dans l\'immobilier en France',
-  description: 'Trouvez où investir dans l\'immobilier en France grâce aux données officielles INSEE et DVF. Analyse de 134 villes et 6 577 quartiers : prix au m², scores d\'investissement et classements.',
+  description: 'Trouvez où investir dans l\'immobilier en France. Analyse de 134 villes et 6 577 quartiers avec données INSEE et DVF : prix au m², scores et classements.',
   alternates: {
-    canonical: 'https://www.clubhouseimmobilier.com/',
+    canonical: '/',
   },
 }
 
